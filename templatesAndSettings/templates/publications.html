@@ -1,0 +1,99 @@
+
+{% extends "admin/base_site.html" %}
+{% load admin_extras %}
+{% load static %}
+{% load i18n  admin_shortcuts_tags %}
+{# django-admin-shortcuts changes these blocks #}
+
+{% block breadcrumbs %}
+	<div class="admin_shortcuts">
+		{% admin_shortcuts %}
+	</div>
+{% endblock %}
+
+ {% block extrastyle %}<style type="text/css">{% admin_shortcuts_css %}</style>
+{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/dashboard.css" %}" />{% endblock %}
+
+
+{% block extrahead %}
+{{ block.super }}{% admin_shortcuts_js %}{% endblock %}
+
+{# end changes #}
+
+{% block coltype %}colM{% endblock %}
+
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+
+
+
+
+{% block content %}
+<form action="" method="post" name="publications">
+{% csrf_token %} 
+<table ><td>
+<select  class="form-control" id="s3" name="selectedAuthor">
+			  <option  value="All">All</option>
+              {% for person in peopleList %}
+				{% if person.personid == selectedAuthor %}
+					<option selected="selected" value="{{ person.personid }}">{{ person.personlastname }}, {{ person.personfirstname }}</option>
+				{% else %}
+					<option  value="{{ person.personid }}">{{ person.personlastname }}, {{ person.personfirstname }}</option>
+				{% endif %}
+              {% endfor %}
+            </select></td>
+<td>
+<select  class="form-control" id="s3" name="filterTags">
+              {% for filterTag in filterTags %}
+				{% if filterTag == selectedTag %}
+					<option selected="selected" value="{{ filterTag }}">{{ filterTag }}</option>
+				{% else %}
+					<option  value="{{ filterTag }}">{{ filterTag }}</option>
+				{% endif %}
+              {% endfor %}
+            </select></td>
+<td>
+<select  class="form-control" id="s3" name="citationCategories">
+			<option  value="All">All</option>
+              {% for category in citationCategories %}
+				{% if category.propertyvalue == selectedCategory %}
+					<option selected="selected" value="{{ category.propertyvalue }}">{{ category.propertyvalue }}</option>
+				{% else %}
+					<option  value="{{ category.propertyvalue }}">{{ category.propertyvalue }}</option>
+				{% endif %}
+              {% endfor %}
+            </select>
+</td>
+			<td><input type="submit" name="update_list" value="Update list" />
+			<input type="submit" name="export_data" value="Export citations" />
+			<input type="submit" name="export_endnote" value="Export in endnote format" />
+			</td>
+			</table>
+<table >
+               
+				<tr ><th scope="col" class="section">Title, CZO Author</td>
+				<th scope="col"  class="section">publisher</th>
+				<th scope="col"  class="section">year</th>
+				<th scope="col"  class="section">DOI</th></tr>
+					<tr>
+							
+				{% for citation in citationList %}
+					<td ><a href="{{prefixpath }}citations/{{citation.citationid}}/" class="changelink"><b>{{citation.title}}</b></a> </td>
+					<td >{{citation.publisher}}</td>
+					<td >{{citation.publicationyear}}</td>
+					<td ><a href="http://dx.doi.org/{{citation.citationlink}}">{{citation.citationlink}}</a></td>
+					</tr>
+					
+					{% for author in authList %}
+						{% if author.citationid == citation %}
+						<tr>
+						<td > &nbsp&nbsp&nbsp{{author.personid}}</td>
+						<td></td><td></td><td></td></tr>
+						{% endif %}
+					{% endfor %}
+					
+                {% endfor %}
+			 </table>	
+
+
+{% endblock %}
+</form>

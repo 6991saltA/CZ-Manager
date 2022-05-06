@@ -1,0 +1,76 @@
+
+{% load admin_extras %}
+<style>
+select {
+    width:85%; 
+    overflow:hidden; 
+    white-space:pre; 
+    text-overflow:ellipsis;
+    
+    
+
+}
+option {
+          border: solid 1px #DDDDDD; 
+}
+</style>
+<br>
+
+ 
+	<form action="" method="post">
+	{% csrf_token %} 
+	<table >
+	<tr><td>
+	<select class="form-control" id="s2" name="xVariableSelection">
+              {% for variable in xVariables %}
+				{% if variable.variableid == xVariableSelection.variableid %}
+					<option selected="selected" value="{{ variable.variableid }}">{{ variable }}</option>
+				{% else %}
+					<option  value="{{ variable.variableid }}">{{ variable.variablecode }}- {{ variable.variable_name }}</option>
+				{% endif %}
+              {% endfor %}
+            </select></td>
+			<td>
+	<select class="form-control" id="s2" name="yVariableSelection">
+              {% for variable in yVariables %}
+				{% if variable.variableid == yVariableSelection.variableid %}
+					<option selected="selected" value="{{ variable.variableid }}">{{ variable }}</option>
+				{% else %}
+					<option  value="{{ variable.variableid }}">{{ variable.variablecode }} - {{ variable.variable_name }}</option>
+				{% endif %}
+              {% endfor %}
+            </select></td>
+			<td>
+	<select class="form-control" id="s3" name="fieldarea1">
+		<option value="All"><b>All</b></option>
+              {% for fieldarea in fieldareas %}
+				{% if fieldarea.samplingfeatureid == fieldarea1.samplingfeatureid %}
+					<option selected="selected" value="{{ fieldarea.samplingfeatureid }}">{{ fieldarea.samplingfeaturecode }}</option>
+				{% else %}
+					<option  value="{{ fieldarea.samplingfeatureid }}">{{ fieldarea.samplingfeaturecode }}</option>
+				{% endif %}
+              {% endfor %}
+            </select></td>
+			<td>
+	<select class="form-control" id="s3" name="fieldarea2">
+		<option value="All"><b>All</b></option>
+              {% for fieldarea in fieldareas %}
+				{% if fieldarea.samplingfeatureid == fieldarea2.samplingfeatureid %}
+					<option selected="selected" value="{{ fieldarea.samplingfeatureid }}">{{ fieldarea.samplingfeaturecode }}</option>
+				{% else %}
+					<option  value="{{ fieldarea.samplingfeatureid }}">{{ fieldarea.samplingfeaturecode }}</option>
+				{% endif %}
+              {% endfor %}
+            </select></td>
+	</tr>
+		<tr>
+			<td>Reload graph with date range:</td></tr>
+		<tr>
+	<td colspan="2">	<input id="startDate" maxlength="100" value= "{{ startDate }}" name="startDate" type="text">
+			Start Date (format YYYY-MM-DD HH:MM) </input>
+			<input id="endDate" maxlength="100" value= "{{ endDate }}" name="endDate" type="text"/>
+			End Date (format YYYY-MM-DD HH:MM) </input></td><td>
+			<td><input type="submit" name="update_chart" value="Update Chart" />
+	<input type="submit" name="export_data" value="Export Data" />
+	</td></tr></table>
+	</form>

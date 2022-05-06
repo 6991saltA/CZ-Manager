@@ -1,0 +1,86 @@
+{% extends "admin/base_site.html" %}
+{% load admin_extras %}
+{% load static %}
+{% load i18n  admin_shortcuts_tags %}
+
+{# django-admin-shortcuts changes these blocks #}
+
+{% block extrastyle %}
+    <style type="text/css">{% admin_shortcuts_css %}</style>
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{% static "admin/css/dashboard.css" %}"/>{% endblock %}
+
+
+{% block extrahead %}{{ block.super }}{% admin_shortcuts_js %}{% endblock %}
+
+{# end changes #}
+
+{% block coltype %}colM{% endblock %}
+
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+
+{% block title %}
+    {{ short_title }} | {{ site_title }}
+{% endblock %}
+
+{% block branding %}
+    <h1>{{ site_header }}</h1>
+{% endblock %}
+
+{% block nav-global %}
+    {% if authenticated %}
+        {% include 'user-tools.html' %}
+    {% endif %}
+{% endblock %}
+
+{% block breadcrumbs %}
+ {% if authenticated %}
+        <div class="admin_shortcuts">
+            {% admin_shortcuts %}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div id="content-main">
+
+
+        <div class="app-odm2testapp module">
+            <table>
+				<tr>
+                    <td class="section"><h1>Sensor Dashboard</h1></td>
+                </tr>
+				<tr>
+                    <th scope="row"><a href="sensordashboard/results=True/">
+                        {% trans 'Sensor Dashboard' %}</a></th>
+                </tr>
+                <tr>
+                    <td class="section"><h1>Graphs</h1></td>
+                </tr>
+                <tr>
+                    <th scope="row"><a href="samplingfeatureselect/">
+                        {% trans 'Multi-select sensor or sample data' %}</a></th>
+                </tr>
+                <tr>
+                    <th scope="row"><a href="wsscatterplot.html">
+                        {% trans 'Water Sample Scatter Plot compare two variables on xy plot' %}</a></th>
+                </tr>
+                <tr>
+                    <th scope="row"><a href="chartVariableAndFeature.html">
+                        {% trans 'Soils Data' %}</a></th>
+                </tr>
+                <tr>
+                    <th scope="row"><a href="soilsscatterplot.html">
+                        {% trans 'Soils Scatter Plot' %}</a></th>
+                </tr>
+                <tr>
+                    <th scope="row"><a href="mapdata.html">
+                        {% trans 'Map Sample Locations' %}</a></th>
+                </tr>
+
+            </table>
+
+        </div>
+
+    </div>
+{% endblock %}

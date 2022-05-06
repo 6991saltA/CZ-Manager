@@ -1,0 +1,86 @@
+
+{% extends "admin/base_site.html" %}
+{% load admin_extras %}
+{% load static %}
+
+{% load i18n  admin_shortcuts_tags %}
+{# django-admin-shortcuts changes these blocks #}
+{% block breadcrumbs %}
+	<div class="admin_shortcuts">
+		{% admin_shortcuts %}
+	</div>
+{% endblock %}
+
+ {% block extrastyle %}<style type="text/css">{% admin_shortcuts_css %}</style>
+{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/dashboard.css" %}" />{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}{% admin_shortcuts_js %}{% endblock %}
+
+{# end changes #}
+
+{% block coltype %}colM{% endblock %}
+
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+{% block content %}
+<div id="content" class="colM">
+<form action="." method="post">
+{% csrf_token %} 
+<h2><a href="../../publications.html">Return to publication list</a></h2>
+    <div id="content-main">
+        <h1>Add or change publication</h1>
+		<fieldset class="module aligned">
+		{{ citation_form.management_form }}
+		<input type='hidden' value='{{citation_form.citationid }}' name='citationidnew'>
+			<table>
+			<tr><td>
+			{{ citation_form.title.label_tag }}{{ citation_form.title }}</td><td>{{ citation_form.publisher.label_tag }}{{ citation_form.publisher }}</td>
+			</tr>
+			<tr><td>
+			{{ citation_form.publicationyear.label_tag }}{{ citation_form.publicationyear }}</td><td>{{ citation_form.citationlink.label_tag }}{{ citation_form.citationlink }}</td>
+			</tr></table>
+			<br>
+			
+<h1>Add or change authors for this publication</h1>
+			<table >
+				<th scope="col"  class="section">Author</th>
+				<th scope="col"  class="section">Order</th>
+				<th scope="col"  class="section">Delete</th></tr>
+            {{ Authorformset.management_form }}
+				{% for form in Authorformset %}
+					<tr>
+					<td>{{form.bridgeid}}{{form.personid.label_tag}}{{form.personid}}</td>
+					<td>{{form.authororder.label_tag}}{{form.authororder}}</td>
+					<td>{{form.DELETE.label_tag}}{{form.DELETE}}</td>
+					</tr>
+					
+				{% endfor %}</table>
+						<br>
+
+<h1>Add or change additional details about this publication</h1>
+						<table >
+			<tr >
+				<th scope="col"  class="section">Property</th>
+				<th scope="col"  class="section">Value</th>
+				<th scope="col"  class="section">delete</th></tr>			
+            {{ Citationpropertyformset.management_form }}
+				{% for form in Citationpropertyformset %}
+				
+					<tr ><td>{{form.bridgeid}}{{form.propertyid}}</td>
+					<td>Value: {{form.propertyvalue}}</td>
+					<td>{{form.DELETE.label_tag}}{{form.DELETE}}</td></tr>
+					
+				{% endfor %}</table>
+				        
+    <div class="submit-row">
+	<table>
+			<tr><td>
+			<input type="submit" name="delete_citation" class="deletelink" value="Delete" />
+	<input type="submit" name="add_citation" class="default" value="Save" />
+	
+			</td></tr></table>
+	</fieldset>
+	</div></div>
+</form>
+</div>
+{% endblock %}

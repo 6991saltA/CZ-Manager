@@ -1,0 +1,24 @@
+<button id="close-filter">Close</button>
+<h2>Filter Sampling Features</h2>
+<p>Filter by:
+    <select id="filter-name" title="filter-list">
+        <option value="none" selected="selected">Select Filter Below</option>
+        <option value="dataset">Dataset</option>
+        <option value="sftype">Sampling Feature Type</option>
+    </select>
+</p>
+<div id="filter-table"></div>
+<script>
+    var filterby = null;
+    $( "#filter-name" ).change(function () {
+        $( "select option:selected" ).each(function() {
+            if ($( this ).val() == "dataset"){
+                document.getElementById('filter-table').innerHTML = document.getElementById('dataset-form').innerHTML;
+            } else if ($( this ).val() == "sftype") {
+                document.getElementById('filter-table').innerHTML = document.getElementById('sftype-form').innerHTML;
+            } else {
+                document.getElementById('filter-table').innerHTML = '';
+            }
+         });
+    });
+</script>

@@ -1,0 +1,163 @@
+{% extends "admin/base_site.html" %}
+{% load admin_extras %}
+{% load static %}
+{% load i18n static admin_shortcuts_tags %}
+
+{# django-admin-shortcuts changes these blocks #}
+
+{% block extrastyle %}
+    <style type="text/css">{% admin_shortcuts_css %}</style>
+	{{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{% static "admin/css/dashboard.css" %}"/>
+
+	{% endblock %}
+
+{% block title %}
+    {{ short_title }} | {{ site_title }}
+{% endblock %}
+
+{% block branding %}
+    <h1>{{ site_header }}</h1>
+{% endblock %}
+
+{% block nav-global %}
+    {% if authenticated %}
+        {% include 'user-tools.html' %}
+    {% endif %}
+{% endblock %}
+
+{% block breadcrumbs %}
+ {% if authenticated %}
+        <div class="admin_shortcuts">
+            {% admin_shortcuts %}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    {% include 'mapdata_head.html' %}
+    {% admin_shortcuts_js %}
+<script type="application/javascript">
+window.globalurl = '';
+var selectedfeatures = [];
+window.prefixpath = '{{prefixpath}}';
+    $(document).ready(function(){
+        //console.log('here');
+        // to save the form I need to do something like this https://realpython.com/django-and-ajax-form-submissions/
+        window.onclick = function(e) {
+            //console.log(e.target.id);
+            if(e.target.localName=='a' && e.target.id == 'linktosidebar'){
+                e.preventDefault();
+                myMap.openSidebar();
+                //console.log(window.globalurl);
+                window.globalurl = e.target.href; //window.location.protocol + "//" + window.location.host +path;
+                url = window.globalurl + " #content";
+                //console.log('load divs');
+                $( "#insidebar" ).load(url); //odm2admin_content document.getElementById("sidebar")
+                console.log(url);
+                var url = '{% static "js/samplingfeaturesmap.js" %}';
+                //console.log(url);
+                $( "#jsholder" ).load(url); //odm2admin_content document.getElementById("sidebar")
+                //console.log('loaded');
+
+                }else{
+
+                };
+
+
+
+        };
+
+
+    });
+
+    </script>
+
+{% endblock %}
+
+{# end changes #}
+{##}
+{#{% block coltype %}colM{% endblock %}#}
+{##}
+{#{% block bodyclass %}{{ block.super }} dashboard{% endblock %}#}
+
+{% block content %}
+
+    <div id="mapheader">
+        {% csrf_token %}
+        {% include 'ds_form.html' %}
+        {% include 'sf_form.html' %}
+        <div id="dataset-filter">
+            {% include 'DatasetsList.html' %}
+        </div>
+        <div id="latlng" class="panel-header">
+            <p>
+                Lat: <span id="lat">0</span>, Lon: <span id="lng">0</span>
+            </p>
+        </div>
+    </div>
+<div id="webmap" class="sidebar-map" >
+		<div id="spinner"></div>
+
+       <div  id="sidebar">
+           <br><br>
+
+           <div id="jsholder">
+
+           </div>
+           <div id="insidebar"></div>
+
+        </div>
+    </div>
+<!--<div id="webmap" class="sidebar-map" >
+    <div id="spinner"></div>
+    <div id="sidebar" class="sidebar collapsed">
+            <div class="sidebar-tabs">
+                <ul role="tablist">
+                    <li><a href="#home" role="tab"><i class="fa fa-bars"></i></a></li>
+
+                </ul>
+            </div>
+
+            <div class="sidebar-content">
+                <div class="sidebar-pane" id="home">
+                    <object title="ODM2 Admin content"  style="overflow:hidden; width: 95%; height: 100%" width="95%" height="100%" id="odm2admin_content" type="text/html"></object>
+                </div>
+            </div>
+     </div>
+	</div>-->
+    <script type="application/javascript">
+    if (loaded !== true) {
+        var url_path = "{{ urlpath }}";
+        //console.log("{{ urlpath }}");
+		spinner = new Spinner().spin();
+		spin=document.getElementById("spinner");
+		spin.appendChild(spinner.el); 
+        var display_titles = false;
+        {% if map_config.display_titles %}
+            display_titles = true;
+        {% endif %}
+        var myApp = new App;
+        myApp.init({{ basemaps|safe }});
+        var myMap = new MAP;
+        myMap.initMap("webmap",
+            [{{ map_config.lat }}, {{ map_config.lon }}], {{ map_config.zoom }}, {{ legends|safe }}, {{map_config.cluster_feature_types | safe}}, display_titles);
+        myMap.addBaseMap(myApp.PARAMS.basemaps);
+
+        var url = myMap.getUrl(JSON.parse('{{ selectedds|safe }}'), JSON.parse('{{ selectedtype|safe }}'));
+        //console.log(url);
+        myMap.getData(url,spinner);
+
+        myMap.makeFilter();
+
+        var loaded = true;
+        let i = 0;
+        //console.log(myMap);
+        //myMap.eachLayer(function(){ i += 1; });
+        //console.log('Map has', i, 'layers.');
+};
+
+    </script>
+
+{% endblock %}

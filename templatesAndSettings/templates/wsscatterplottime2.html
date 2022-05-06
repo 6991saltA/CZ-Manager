@@ -1,0 +1,233 @@
+<!--check this for options https://docs.djangoproject.com/en/1.4/obsolete/admin-css/
+
+
+
+
+-->
+
+{% extends "admin/base_site.html" %}
+{% load admin_extras %}
+{% load static %}
+{% load i18n static admin_shortcuts_tags %}
+
+{# django-admin-shortcuts changes these blocks #}
+
+
+
+ {% block extrastyle %}<style type="text/css">{% admin_shortcuts_css %}
+</style>
+{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/dashboard.css" %}" />{% endblock %}
+{% block title %}
+    Time Series | {{ "site_title"|get_title:6 }}
+{% endblock %}
+
+{% block branding%}
+    <h1>{{ "site_header"|get_title:6 }}</h1>
+{% endblock %}
+
+{% block nav-global %}
+    {% if authenticated %}
+        {% include 'user-tools.html' %}
+    {% endif %}
+{% endblock %}
+{% block breadcrumbs %}
+{% if authenticated %}
+	<div class="admin_shortcuts">
+		{% admin_shortcuts %}
+	</div>
+	{% endif %}
+{% endblock %}
+{% block extrahead %}
+{{ block.super }}
+ <script src='https://www.google.com/recaptcha/api.js'></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+
+
+{% admin_shortcuts_js %}{% endblock %}
+
+{# end changes #}
+
+{% block coltype %}colM{% endblock %}
+
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+
+
+
+
+{% block content %}
+	<script src="https://code.highcharts.com/stock/highstock.js"></script>
+    <script src="https://code.highcharts.com/stock/highcharts-more.js"></script>
+	<script src="https://code.highcharts.com/modules/exporting.js"></script>
+	 <script src="https://rawgithub.com/RolandBanguiran/highcharts-scalable-yaxis/master/scalable-yaxis.js"></script>
+	 <script src="https://highcharts.github.io/export-csv/export-csv.js"></script>
+
+	<script>
+    var chart_id = 'chartid';
+    var chart = {{ chart|safe }};
+    var title2 = {{ title2|safe }};
+    var xAxis = {{ xAxis|safe }};
+    var yAxis = {{ yAxis|safe }};
+    var series = {{ series|safe }};
+	var graphType =   '{{graphType|safe }}';
+	var name_of_units = {{name_of_units|safe}};
+
+$(document).ready(function() {
+	//console.log(series);
+	var opposite2 = false;
+	yaxes = [];
+	k = 0;
+	nodata = false;
+	for (var i=0; i<series.length; i++){
+	data = series[i].data;
+		for(var j=0; j<data.length; j++){
+            if(data[j]["y"]=="null"){
+					data[j]["y"] = null;
+					k+=1;
+				}
+			}
+		if (k == data.length){
+			nodata = true;
+		}
+	data.sort();
+	}
+	//console.log(data);
+	usednames = [];
+	for (var i=0; i<name_of_units.length; i++) {
+		name = name_of_units[i];
+		//alert(name);
+		if (i ==0){
+			usednames.push(name);
+		}
+		var namesusedlen = usednames.length;
+
+        var used = false;
+        for(var j = 0; j < namesusedlen; j++) {
+            if (usednames[j].localeCompare(name) ==0){
+				//console.log(usednames);
+				//console.log(name);
+				//console.log(j);
+            	used = true;
+            }
+        }
+		if(!used || i ==0){
+			usednames.push(name);
+			//console.log(usednames[j]);
+			//console.log(name);
+			axi = {id: name,
+			scrollbar: {
+			enabled: false
+			},
+			labels: {
+					format: '{value}',
+					style: {
+						color: Highcharts.getOptions().colors[i]
+					}
+				},
+			title: {
+				text: name
+			},
+			//lineWidth: 2,
+			//lineColor: Highcharts.getOptions().colors[i],
+			opposite: opposite2
+			};
+			//console.log(axi);
+			yaxes.push(axi);
+			usednames.push(name);
+			//console.log(usednames);
+
+        }
+	}
+	//console.log(yaxes);
+	//console.log(xAxis);
+	//console.log(usednames);
+	//yAxis[1] = yAxis2.replace('"','');
+	var chart =Highcharts.stockChart('chartid', {
+		chart: {renderTo: chart_id,
+		type: graphType,  zoomType: 'xy',},
+		legend: {
+                            enabled: false,
+                            layout: 'vertical',
+                            align: 'center',
+                            verticalAlign: 'top',
+                            x: 0,
+                            y: 10,
+                            borderWidth: 0
+                        },
+        title: title2,
+		rangeSelector: {
+            allButtonsEnabled: false,
+            selected: 2
+        },
+        xAxis: xAxis,
+        yAxis:yaxes,
+        series: series,
+    tooltip: {
+        backgroundColor: 'white',
+        borderWidth: 0,
+        borderRadius: 0,
+	xDateFormat: '%e-%b-%Y %I:%M %p',
+        headerFormat: '{point.key} ',
+        pointFormat: ' | <span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b>',
+        positioner: function () {
+            return { x: 10, y: 35 };
+        },
+
+        shadow: false,
+        split: false
+    },
+    });
+
+	//alert(name_of_units.length);
+
+
+
+	});
+	 Highcharts.addEvent(Highcharts.Chart, 'displayError', function (event) {
+    // See https://github.com/highcharts/highcharts/blob/master/errors/errors.xml
+    // for error id's
+	errortext = event.code
+	noError = false;
+	if(event.code == 14){
+		errortext = ' No data available for this time frame try a different start and end date';
+	}
+	if(event.code == 15){
+	errortext = ''
+	noError = true;
+	}
+	if(!noError){
+    Highcharts.charts[0].renderer
+        .text('Chart error ' + errortext)
+        .attr({
+            fill: 'red',
+            zIndex: 20
+        })
+        .add()
+        .align({
+            align: 'center',
+            verticalAlign: 'middle'
+        }, null, 'plotBox');
+    }
+});
+
+</script>
+
+<p><h1>
+</h1>
+    <div id='content-main'> {% csrf_token %}
+	 </div>
+	<div id='chartid' class="chart" style="height:600px; width:100%; margin: 0 auto;"></div>
+
+<br>
+{% include 'VariableList.html' %}
+<br><br>
+<p>{{data_disclaimer.text}} <a href={{data_disclaimer.link}} target="_blank"> {{data_disclaimer.linktext}}</a></p>
+{% endblock %}
+
+
+{% block overwrite %}
+<!-- Overwrite the base.html jQuery load and put in head for Highcharts to work -->
+{% endblock %}
+{% block extrajs %}
+<!-- Maps the Python template context variables from views.py to the Highchart js variables -->
+
+{% endblock %}
